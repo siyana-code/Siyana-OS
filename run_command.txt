@@ -1,2 +1,7 @@
 nasm -f bin boot/boot.asm -o boot/boot.bin
 qemu-system-x86_64 -drive format=raw,file=boot/boot.bin
+
+nasm -f bin boot/boot.asm -o boot/boot.bin
+nasm -f bin boot/stage2.asm -o boot/stage2.bin
+cat boot/boot.bin boot/stage2.bin > boot/disk.img
+ls -la boot/
