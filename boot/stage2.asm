@@ -67,4 +67,20 @@ gdt_descriptor:
     dd gdt_start
 
 protected_mode_main:
+    mov esi, pm_msg
+    mov edi, 0xB8000
+    mov ah, 0x0F
+
+print_pm:
+    mov al, [esi]
+    cmp al, 0
+    je pm_hang
+    mov [edi], ax
+    add esi, 1
+    add edi, 2
+    jmp print_pm
+
+pm_hang:
     jmp $
+
+pm_msg: db 'Protected mode active - Siyana OS', 0
