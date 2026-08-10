@@ -7,10 +7,48 @@ start_stage2:
 print2:
     lodsb
     cmp al, 0
-    je switch_to_pm
+    je load_kernel
     mov ah, 0x0E
     int 0x10
     jmp print2
+
+load_kernel:
+    mov ax, 0x1000
+    mov es, ax
+    mov bx, 0x0000
+
+    mov ah, 0x0E
+    mov al, 'A'          ; checkpoint A: about to read disk
+    int 0x10
+
+    mov ah, 0x02
+    mov al, 8
+    mov ch, 0
+    mov cl, 26
+    mov dh, 0
+    int 0x13
+    jc disk_error2
+
+    mov ah, 0x0E
+    mov al, 'B'          ; checkpoint B: disk read succeeded
+    int 0x10
+
+    jmp switch_to_pm
+
+disk_error2:
+    mov si, err_msg2
+
+print_err2:
+    lodsb
+    cmp al, 0
+    je hang2
+    mov ah, 0x0E
+    int 0x10
+    jmp print_err2
+
+hang2:
+    hlt
+    jmp hang2
 
 switch_to_pm:
     cli
@@ -42,6 +80,7 @@ CODE64_SEG equ gdt_code64 - gdt_start
 DATA64_SEG equ gdt_data64 - gdt_start
 
 msg2: db 0x0D, 0x0A, 'Stage 2 loaded and running!', 0
+err_msg2: db 'Kernel disk read error!', 0
 
 gdt_start:
     dq 0x0000000000000000
@@ -140,7 +179,7 @@ print_lm:
     jmp print_lm
 
 lm_hang:
-    jmp $
+    jmp 0x10000
 
 pm_msg: db 'Protected mode active - Siyana OS', 0
 lm_msg: db 'Long mode active - 64-bit CPU engaged', 0

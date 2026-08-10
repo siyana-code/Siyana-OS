@@ -10,3 +10,14 @@ nasm -f bin boot/boot.asm -o boot/boot.bin
 nasm -f bin boot/stage2.asm -o boot/stage2.bin
 cat boot/boot.bin boot/stage2.bin > boot/disk.img
 qemu-system-x86_64 -drive format=raw,file=boot/disk.img
+
+nasm -f bin boot/boot.asm -o boot/boot.bin
+nasm -f bin boot/stage2.asm -o boot/stage2.bin
+cat boot/boot.bin boot/stage2.bin boot/kernel.bin > boot/disk.img
+qemu-system-x86_64 -drive format=raw,file=boot/disk.img
+
+cargo build
+objcopy -O binary target/x86_64-unknown-none/debug/siyana_os boot/kernel.bin
+truncate -s 4096 boot/kernel.bin
+cat boot/boot.bin boot/stage2.bin boot/kernel.bin > boot/disk.img
+qemu-system-x86_64 -drive format=raw,file=boot/disk.img -no-reboot -d int
