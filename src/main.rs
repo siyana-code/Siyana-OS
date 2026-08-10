@@ -6,7 +6,6 @@ use core::panic::PanicInfo;
 #[unsafe(no_mangle)]
 #[unsafe(link_section = ".text.start")]
 extern "C" fn _start() -> ! {
-    /*
     let vga = 0xB8140 as *mut u8;
     let message = b"Siyana kernel is alive!";
 
@@ -20,11 +19,6 @@ extern "C" fn _start() -> ! {
 
         i += 1;
     }
-    */
-    unsafe {
-        *(0xB8000 as *mut u16) = 0x0F4B;
-    }
-
     loop{}
 }
 
