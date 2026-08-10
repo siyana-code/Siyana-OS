@@ -17,22 +17,14 @@ load_kernel:
     mov es, ax
     mov bx, 0x0000
 
-    mov ah, 0x0E
-    mov al, 'A'          ; checkpoint A: about to read disk
-    int 0x10
-
     mov ah, 0x02
-    mov al, 8
+    mov al, 15
     mov ch, 0
     mov cl, 26
     mov dh, 0
     int 0x13
     jc disk_error2
-
-    mov ah, 0x0E
-    mov al, 'B'          ; checkpoint B: disk read succeeded
-    int 0x10
-
+    
     jmp switch_to_pm
 
 disk_error2:

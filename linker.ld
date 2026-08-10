@@ -7,22 +7,27 @@ SECTIONS
     /DISCARD/ : {
         *(.eh_frame)
         *(.eh_frame_hdr)
+        *(.comment)
     }
 
     .text : {
         KEEP(*(.text.start))
-        *(.text)
+        *(.text*)
     }
 
     .rodata : {
-        *(.rodata)
+        *(.rodata*)
     }
 
     .data : {
-        *(.data)
+        *(.data*)
     }
 
     .bss : {
-        *(.bss)
+        *(.bss*)
+    }
+
+    .got : {
+        *(.got*)
     }
 }

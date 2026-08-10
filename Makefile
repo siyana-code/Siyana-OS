@@ -19,7 +19,7 @@ $(KERNEL_ELF): src/main.rs linker.ld
 
 $(KERNEL_BIN): $(KERNEL_ELF)
 	objcopy -O binary $(KERNEL_ELF) $(KERNEL_BIN)
-	truncate -s 4096 $(KERNEL_BIN)
+	truncate -s 7680 $(KERNEL_BIN)
 
 $(DISK_IMG): $(BOOT_BIN) $(STAGE2_BIN) $(KERNEL_BIN)
 	cat $(BOOT_BIN) $(STAGE2_BIN) $(KERNEL_BIN) > $(DISK_IMG)

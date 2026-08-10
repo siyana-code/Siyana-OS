@@ -1,5 +1,8 @@
 #![no_std]
 #![no_main]
+#![feature(abi_x86_interrupt)]
+
+mod interrupts;
 
 use core::panic::PanicInfo;
 
@@ -19,6 +22,17 @@ extern "C" fn _start() -> ! {
 
         i += 1;
     }
+
+    interrupts::init_idt();
+
+    unsafe {
+        core::arch::asm!(
+            "mov eax, 10",
+            "mov ecx, 0",
+            "div ecx",
+        );
+    }
+
     loop{}
 }
 
