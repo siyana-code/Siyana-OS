@@ -38,6 +38,8 @@ init_pm:
 
 CODE_SEG equ gdt_code - gdt_start
 DATA_SEG equ gdt_data - gdt_start
+CODE64_SEG equ gdt_code64 - gdt_start
+DATA64_SEG equ gdt_data64 - gdt_start
 
 msg2: db 0x0D, 0x0A, 'Stage 2 loaded and running!', 0
 
@@ -60,6 +62,22 @@ gdt_data:
     db 11001111b
     db 0x00
 
+gdt_code64:
+    dw 0x0000
+    dw 0x0000
+    db 0x00
+    db 10011010b
+    db 00100000b
+    db 0x00
+
+gdt_data64:
+    dw 0x0000
+    dw 0x0000
+    db 0x00
+    db 10010010b
+    db 0x00
+    db 0x00
+
 gdt_end:
 
 gdt_descriptor:
@@ -74,13 +92,65 @@ protected_mode_main:
 print_pm:
     mov al, [esi]
     cmp al, 0
-    je pm_hang
+    je enable_long_mode
     mov [edi], ax
     add esi, 1
     add edi, 2
     jmp print_pm
 
-pm_hang:
+enable_long_mode:
+    mov eax, cr4
+    or eax, 1 << 5
+    mov cr4, eax
+
+    mov eax, pml4_table
+    mov cr3, eax
+
+    mov ecx, 0xC0000080
+    rdmsr
+    or eax, 1 << 8
+    wrmsr
+
+    mov eax, cr0
+    or eax, 1 << 31
+    mov cr0, eax
+
+    jmp CODE64_SEG:long_mode_start
+
+[bits 64]
+long_mode_start:
+    mov ax, DATA64_SEG
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+
+    mov rsi, lm_msg
+    mov rdi, 0xB80A0
+    mov ah, 0x0F
+
+print_lm:
+    mov al, [rsi]
+    cmp al, 0
+    je lm_hang
+    mov [rdi], ax
+    add rsi, 1
+    add rdi, 2
+    jmp print_lm
+
+lm_hang:
     jmp $
 
 pm_msg: db 'Protected mode active - Siyana OS', 0
+lm_msg: db 'Long mode active - 64-bit CPU engaged', 0
+
+align 4096
+pml4_table:
+    dq pdpt_table + 0x03
+    times 511 dq 0
+
+align 4096
+pdpt_table:
+    dq 0x00000083
+    times 511 dq 0
