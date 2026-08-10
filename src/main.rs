@@ -4,6 +4,7 @@
 use core::panic::PanicInfo;
 
 #[unsafe(no_mangle)]
+#[unsafe(link_section = ".text.start")]
 extern "C" fn _start() -> ! {
     loop{}
 }

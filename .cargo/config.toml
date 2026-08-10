@@ -1,2 +1,8 @@
 [build]
 target = "x86_64-unknown-none"
+
+[target.x86_64-unknown-none]
+rustflags = [
+    "-C", "link-arg=-T/home/kaushalya/Siyana/siyana-os/linker.ld",
+    "-C", "relocation-model=static",
+]
