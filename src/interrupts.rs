@@ -25,7 +25,12 @@ pub fn init_idt() {
 
 pub fn init_pics() {
     unsafe {
-        PICS.lock().initialize()
+        let mut pics = PICS.lock();
+        pics.initialize();
+        // Mask everything except IRQ1 (keyboard). BIOS leaves IRQ0
+        // (timer) unmasked, and we have no timer handler yet — an
+        // unhandled IRQ0 would fault the kernel.
+        pics.write_masks(0b1111_1101, 0xFF);
     };
 }
 

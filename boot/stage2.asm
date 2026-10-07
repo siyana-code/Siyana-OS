@@ -18,14 +18,53 @@ load_kernel:
     mov bx, 0x0000
 
     mov ah, 0x02
-    mov al, 16
+    mov al, 17
     mov ch, 0
     mov cl, 26
     mov dh, 0
     int 0x13
     jc disk_error2
 
+    ; --- Set VBE mode 0x112 (640x480, 24bpp) with linear framebuffer ---
+    xor ax, ax
+    mov es, ax
+    mov ds, ax
+    mov ax, 0x4F01          ; VBE: get mode info
+    mov cx, 0x0112
+    mov di, 0x7000          ; ModeInfoBlock buffer at physical 0x7000
+    int 0x10
+    cmp ax, 0x004F
+    jne vbe_error
+    mov eax, [0x7000 + 0x28] ; linear framebuffer base (bytes 0x28-0x2B)
+    mov [0x7C00], eax
+    mov ax, [0x7000 + 0x10]  ; pitch (bytes per scanline)
+    mov [0x7C04], ax
+    mov ax, [0x7000 + 0x12]  ; width
+    mov [0x7C08], ax
+    mov ax, [0x7000 + 0x14]  ; height
+    mov [0x7C0A], ax
+
+    mov ax, 0x4F02          ; VBE: set mode
+    mov bx, 0x4112          ; mode 0x112 | linear fb bit (0x4000)
+    int 0x10
+    cmp ax, 0x004F
+    jne vbe_error
+
     jmp switch_to_pm
+
+vbe_error:
+    mov si, vbe_msg
+print_vbe_err:
+    lodsb
+    cmp al, 0
+    je hang_vbe
+    mov ah, 0x0E
+    int 0x10
+    jmp print_vbe_err
+
+hang_vbe:
+    hlt
+    jmp hang_vbe
 
 disk_error2:
     mov si, err_msg2
@@ -73,6 +112,7 @@ DATA64_SEG equ gdt_data64 - gdt_start
 
 msg2: db 0x0D, 0x0A, 'Stage 2 loaded and running!', 0
 err_msg2: db 'Kernel disk read error!', 0
+vbe_msg: db 'VBE framebuffer setup failed!', 0
 
 gdt_start:
     dq 0x0000000000000000
@@ -183,5 +223,8 @@ pml4_table:
 
 align 4096
 pdpt_table:
-    dq 0x00000083
-    times 511 dq 0
+    dq 0x00000083        ; 0–1 GB identity mapped
+    dq 0
+    dq 0x80000083        ; 2–3 GB identity mapped
+    dq 0xC0000083        ; 3–4 GB identity mapped (VBE LFB lives here)
+    times 508 dq 0

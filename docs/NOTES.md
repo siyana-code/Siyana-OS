@@ -168,7 +168,32 @@ Everything must be built from `core` + hardware primitives.
 
 ---
 
-## 10. Build System (Makefile + raw disk image)
+## 10. VESA Framebuffer (GUI groundwork)
+
+### What is it?
+VGA text mode puts ASCII into a character buffer. A **VESA (VBE) linear
+framebuffer** gives us a raw array of pixels — the base of every modern GUI.
+
+### Why?
+A GUI needs per-pixel graphics: icons, windows, fonts, wallpapers. Text mode
+can't draw shapes or blend colors.
+
+### How it works here
+- `boot/stage2.asm` calls BIOS `int 0x10`, function `0x4F01` (get VBE mode
+  info for mode `0x112` = 640×480×24bpp), reads the linear framebuffer address
+  out of the ModeInfoBlock, stores it (with pitch/width/height) at physical
+  `0x7C00`, then sets the mode via function `0x4F02`.
+- Page tables now identity-map 0–4 GB (four 1 GB pages) so the kernel can
+  write to the LFB no matter where the chipset placed it.
+- `src/fb.rs` reads the info block and plots pixels; `draw_test_pattern()`
+  paints a gradient as proof.
+
+### Next
+Bitmap font rendering, double buffering, then a window manager.
+
+---
+
+## 11. Build System (Makefile + raw disk image)
 
 ### What is it?
 The Makefile assembles both boot stages with NASM, builds the kernel in release

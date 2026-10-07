@@ -68,6 +68,20 @@ drivers, a userspace, and a defined system-call interface — engineered, not a 
 | Shell | ls, cat, run, echo, help |
 | ELF-based program loading | |
 
+## Phase 6.5 — Graphics & GUI
+
+| Item | Notes |
+|------|-------|
+| VBE/VESA linear framebuffer | mode set in stage 2, address passed to kernel |
+| Framebuffer driver | pixel plotting, fill, lines |
+| Bitmap font renderer | glyph rendering on framebuffer |
+| Double buffering / back buffer | flicker-free drawing |
+| Window manager core | rectangles, titles, focus, event routing |
+| Widget toolkit | buttons, labels, text fields |
+| Compositor | layered windows, animation |
+| Mouse driver | PS/2 pointing device in GUI mode |
+| Desktop shell | wallpaper, taskbar, app launcher |
+
 ## Phase 7 — Production hardening
 
 | Item | Notes |

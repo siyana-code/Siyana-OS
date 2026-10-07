@@ -3,6 +3,7 @@
 #![feature(abi_x86_interrupt)]
 
 mod interrupts;
+mod fb;
 
 use core::panic::PanicInfo;
 
@@ -29,6 +30,8 @@ extern "C" fn _start() -> ! {
     unsafe {
         core::arch::asm!("sti");
     }
+
+    fb::draw_test_pattern();
 
     loop{}
 }
