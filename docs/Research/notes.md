@@ -155,6 +155,22 @@ proper input subsystem.
 
 ---
 
+## 8.1 Memory Discovery (E820) & Bump Allocation
+
+### What is it?
+BIOS provides the physical memory map via E820. Stage 2 stores it at 0x7E00;
+`src/memory.rs` sums usable regions (~127 MB on QEMU) and `alloc_pages` bumps a
+pointer starting at 1 MiB.
+
+### Why?
+The kernel cannot use heap-style allocation until it knows where RAM is, and a
+frame allocator is the foundation for a heap, page tables, and process isolation.
+
+### Later
+A real free-list allocator keyed to the E820 usable regions.
+
+---
+
 ## 9. Freestanding Rust Kernel
 
 ### What is it?

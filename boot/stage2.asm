@@ -18,12 +18,47 @@ load_kernel:
     mov bx, 0x0000
 
     mov ah, 0x02
-    mov al, 37
+    mov al, 41
     mov ch, 0
     mov cl, 26
     mov dh, 0
     int 0x13
     jc disk_error2
+
+    ; --- Query BIOS E820 memory map for usable regions ---
+    xor ax, ax
+    mov es, ax
+    mov ds, ax
+    mov di, 0x7D00          ; entry buffer: one 24-byte E820 entry
+    xor bx, bx              ; continuation value, start at 0
+    xor bp, bp              ; entry count
+e820_loop:
+    mov eax, 0xE820
+    mov edx, 0x534D4150     ; 'SMAP'
+    mov ecx, 24
+    mov di, 0x7D00          ; E820 writes here each call!
+    int 0x15
+    jc e820_done            ; carry set = error/done
+    cmp eax, 0x534D4150
+    jne e820_done
+    cmp ecx, 20
+    jb e820_skip
+    ; store entry: copy 20 bytes to 0x7E00 + bp*20
+    cld
+    mov si, 0x7D00
+    mov di, 0x7E00
+    mov ax, bp
+    mov cx, 20
+    imul cx, ax             ; offset = bp * 20
+    add di, cx
+    mov cx, 20
+    rep movsb
+    inc bp
+e820_skip:
+    cmp bx, 0
+    jne e820_loop
+e820_done:
+    mov [0x7C20], bp        ; entry count
 
     ; --- Set VBE mode 0x112 (640x480, 24bpp) with linear framebuffer ---
     xor ax, ax

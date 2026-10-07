@@ -28,13 +28,21 @@ Each word links to its own file.
 - [Linker script](concepts/linker-script.md) — tells the linker where to put code
 - [ELF](concepts/elf.md) — the kernel's file format before objcopy
 
-## Interrupts ## Interrupts Timing
+## Interrupts & Timing
 - [PIT (8253/8254)](concepts/pit.md) — the clock chip
 - [PIT Channel 0](concepts/pit-channel0.md) — drives IRQ0
 - [PIT divisor](concepts/pit-divisor.md) — sets the tick frequency
 - [PIT mode 3](concepts/pit-mode3.md) — periodic square wave
 - [Tick](concepts/tick.md) — one timer interrupt
 - [Atomic counter](concepts/atomic-counter.md) — lock-free counter in handlers
+
+## Memory
+- [BIOS E820](concepts/e820.md) — BIOS memory map query
+- [Memory map](concepts/memory-map.md) — region list of physical RAM
+- [Usable region](concepts/usable-region.md) — type-1 E820 entries
+- [Bump allocator](concepts/bump-allocator.md) — simplest frame allocator
+- [Physical frame](concepts/physical-frame.md) — 4 KiB RAM chunk
+- [Page size](concepts/page-size.md) — the 4 KiB unit paging uses
 
 ## Interrupts
 - [Interrupt](concepts/interrupt.md) — "stop everything, run this now!"

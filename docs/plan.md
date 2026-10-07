@@ -27,7 +27,7 @@ drivers, a userspace, and a defined system-call interface — engineered, not a 
 
 | Item | Notes |
 |------|-------|
-| Physical frame allocator | Bitmap or free-list over usable RAM (parse BIOS map) |
+| Physical frame allocator (E820 + bump) | ✅ |
 | Heap allocator | linked_list_allocator or bump → growing heap |
 | Virtual memory management | map/unmap API over page-table levels |
 | Page fault handler | Must diagnose R/W, present, user/supervisor bits |

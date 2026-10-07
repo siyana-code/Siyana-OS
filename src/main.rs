@@ -4,6 +4,7 @@
 
 mod interrupts;
 mod fb;
+mod memory;
 mod font;
 mod keyboard;
 
@@ -36,6 +37,7 @@ extern "C" fn _start() -> ! {
     fb::draw_test_pattern();
     fb::draw_text(10, 10, "Siyana OS v0.1 - framebuffer online", 255, 255, 255);
     fb::draw_text(10, 26, "Type nothing yet. Keyboard IRQ works.", 255, 255, 0);
+    memory::probe_and_print();
 
     loop{}
 }

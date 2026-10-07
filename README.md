@@ -57,5 +57,6 @@ See [docs/plan.md](docs/plan.md) for the full production roadmap, and
 - [x] Interrupt handling (IDT)
 - [x] Keyboard IRQ handler (scancode draining; key decoding pending)
 - [ ] Proper VGA text driver (scrolling, screen clearing)
-- [ ] Memory management (physical/virtual allocators)
+- [x] Memory discovery (E820) + bump frame allocator
+- [ ] Heap allocator, virtual memory manager
 - [ ] Basic task/process model
