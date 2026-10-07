@@ -40,14 +40,21 @@ boot/
   stage2.asm    - Stage 2: protected/long mode setup, kernel loader
 src/
   main.rs       - Kernel entry point
+  interrupts.rs - IDT, PIC setup, exception/IRQ handlers
 linker.ld       - Kernel linker script (fixed load address 0x10000)
 Makefile        - Build automation
+docs/
+  NOTES.md      - Teaching notes per subsystem (what/why/how)
+  PLAN.md       - Production project plan and branching model
 ```
 
 ## Roadmap
 
-- [ ] Interrupt handling (IDT)
-- [ ] Keyboard input
+See [docs/PLAN.md](docs/PLAN.md) for the full production roadmap, and
+[docs/NOTES.md](docs/NOTES.md) for teaching notes on each subsystem.
+
+- [x] Interrupt handling (IDT)
+- [x] Keyboard IRQ handler (scancode draining; key decoding pending)
 - [ ] Proper VGA text driver (scrolling, screen clearing)
 - [ ] Memory management (physical/virtual allocators)
 - [ ] Basic task/process model

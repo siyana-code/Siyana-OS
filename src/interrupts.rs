@@ -1,4 +1,5 @@
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
+use x86_64::instructions::port::Port;
 use spin::{Lazy, Mutex};
 use pic8259::ChainedPics;
 
@@ -46,6 +47,12 @@ extern "x86-interrupt" fn divide_by_zero_handler(_stack_frame: InterruptStackFra
 }
 
 extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStackFrame) {
+    // Drain the scancode from the keyboard controller (port 0x60).
+    // Without this the controller's output buffer stays full and no
+    // further IRQs are delivered.
+    let mut port = Port::<u8>::new(0x60);
+    let _scancode = unsafe { port.read() };
+
     let vga = 0xB8000 as *mut u8;
     let message = b"KEY PRESSED!";
     let mut i = 0;

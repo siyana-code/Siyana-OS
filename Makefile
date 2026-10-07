@@ -30,7 +30,7 @@ $(DISK_IMG): $(BOOT_BIN) $(STAGE2_BIN) $(KERNEL_BIN)
 	@SECTORS=$$(cat boot/.kernel_sectors); \
 	CURRENT=$$(grep -oP '(?<=mov al, )\d+' boot/stage2.asm | tail -1); \
 	if [ "$$SECTORS" != "$$CURRENT" ]; then \
-		echo "WARNING: stage2.asm reads $$CURRENT sectors but kernel needs $$SECTORS. Update boot/boot.asm's 'mov al, N' under load_kernel."; \
+		echo "WARNING: stage2.asm reads $$CURRENT sectors but kernel needs $$SECTORS. Update boot/stage2.asm's 'mov al, N' under load_kernel."; \
 		exit 1; \
 	fi
 	cat $(BOOT_BIN) $(STAGE2_BIN) $(KERNEL_BIN) > $(DISK_IMG)
