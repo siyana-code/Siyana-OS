@@ -56,20 +56,8 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStac
     // Without this the controller's output buffer stays full and no
     // further IRQs are delivered.
     let mut port = Port::<u8>::new(0x60);
-    let _scancode = unsafe { port.read() };
-
-    let vga = 0xB8000 as *mut u8;
-    let message = b"KEY PRESSED!";
-    let mut i = 0;
-
-    while i < message.len() {
-        unsafe {
-            *vga.offset(i as isize * 2) = message[i];
-            *vga.offset(i as isize * 2 + 1)  = 0x2F;
-        }
-
-        i += 1;
-    }
+    let scancode = unsafe { port.read() };
+    crate::keyboard::handle_scancode(scancode);
 
     unsafe {
         PICS.lock().notify_end_of_interrupt(KEYBOARD_INTERRUPT_ID);

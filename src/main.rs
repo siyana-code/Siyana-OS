@@ -5,6 +5,7 @@
 mod interrupts;
 mod fb;
 mod font;
+mod keyboard;
 
 use core::panic::PanicInfo;
 

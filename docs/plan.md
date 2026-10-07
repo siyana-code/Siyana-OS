@@ -90,7 +90,7 @@ drivers, a userspace, and a defined system-call interface — engineered, not a 
 | Watchdog / triple-fault recovery path | |
 | Testing: QEMU boot tests in CI | GitHub Actions build + QEMU smoke test |
 | Fuzz/property tests for parsers & allocators | |
-| Documentation of every subsystem (see docs/NOTES.md style) | |
+| Documentation of every subsystem (see docs/Research/notes.md style) | |
 | Release process: tagged versions, `main` = release, `develop` = integration | |
 
 ## Branching model
