@@ -21,7 +21,7 @@ drivers, a userspace, and a defined system-call interface — engineered, not a 
 | PIC remap + keyboard IRQ1 handler | 🔧 (scancode drained; decoding pending) |
 | Proper VGA text driver (scroll, clear, cursor) | ⬜ |
 | Scancode → keycode → ASCII translation | ⬜ |
-| Timer interrupt (IRQ0) + tick counter | ⬜ |
+| Timer interrupt (IRQ0) + tick counter | ✅ |
 
 ## Phase 2 — Memory
 

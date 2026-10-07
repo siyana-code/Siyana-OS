@@ -168,7 +168,24 @@ Everything must be built from `core` + hardware primitives.
 
 ---
 
-## 10. VESA Framebuffer (GUI groundwork)
+## 10. PIT Timer (IRQ0)
+
+### What is it?
+The 8253/8254 PIT generates periodic interrupts on IRQ0. We program channel 0,
+mode 3, divisor 11932 → 100 Hz.
+
+### Why?
+A kernel without time can never implement `sleep`, timeouts, or a preemptive
+scheduler. IRQ0 gives us a heartbeat. Our handler bumps `TICKS` and, once per
+second, refreshes the green on-screen counter.
+
+### Order of operations
+IDT handler registered → PICs initialized (IRQ0+IRQ1 unmasked) → PIT programmed
+→ `sti` enables interrupts.
+
+---
+
+## 11. VESA Framebuffer (GUI groundwork)
 
 ### What is it?
 VGA text mode puts ASCII into a character buffer. A **VESA (VBE) linear
@@ -193,7 +210,7 @@ Bitmap font rendering, double buffering, then a window manager.
 
 ---
 
-## 11. Build System (Makefile + raw disk image)
+## 12. Build System (Makefile + raw disk image)
 
 ### What is it?
 The Makefile assembles both boot stages with NASM, builds the kernel in release

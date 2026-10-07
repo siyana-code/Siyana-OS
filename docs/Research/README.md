@@ -28,6 +28,14 @@ Each word links to its own file.
 - [Linker script](concepts/linker-script.md) — tells the linker where to put code
 - [ELF](concepts/elf.md) — the kernel's file format before objcopy
 
+## Interrupts ## Interrupts Timing
+- [PIT (8253/8254)](concepts/pit.md) — the clock chip
+- [PIT Channel 0](concepts/pit-channel0.md) — drives IRQ0
+- [PIT divisor](concepts/pit-divisor.md) — sets the tick frequency
+- [PIT mode 3](concepts/pit-mode3.md) — periodic square wave
+- [Tick](concepts/tick.md) — one timer interrupt
+- [Atomic counter](concepts/atomic-counter.md) — lock-free counter in handlers
+
 ## Interrupts
 - [Interrupt](concepts/interrupt.md) — "stop everything, run this now!"
 - [Exception](concepts/exception.md) — an interrupt caused by your own code
