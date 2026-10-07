@@ -14,7 +14,7 @@ $(BOOT_BIN): boot/boot.asm
 $(STAGE2_BIN): boot/stage2.asm
 	nasm -f bin boot/stage2.asm -o $(STAGE2_BIN)
 
-$(KERNEL_ELF): src/main.rs src/interrupts.rs src/fb.rs linker.ld
+$(KERNEL_ELF): src/main.rs src/interrupts.rs src/fb.rs src/font.rs linker.ld
 	cargo build --release
 
 $(KERNEL_BIN): $(KERNEL_ELF)

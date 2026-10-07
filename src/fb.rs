@@ -5,6 +5,7 @@
 //! pitch, width and height at physical address 0x7C00.
 
 use core::ptr;
+use crate::font::{FONT, GLYPH_W, GLYPH_H};
 
 const FB_INFO_BASE: *const u8 = 0x7C00 as *const u8;
 
@@ -61,6 +62,26 @@ pub fn put_pixel(x: usize, y: usize, r: u8, g: u8, b: u8) {
         *px = b;
         *px.add(1) = g;
         *px.add(2) = r;
+    }
+}
+
+/// Draw one glyph at (x, y) with the given foreground color.
+pub fn draw_char(x: usize, y: usize, c: u8, r: u8, g: u8, b: u8) {
+    let glyph = &FONT[c as usize];
+    for row in 0..GLYPH_H {
+        let bits = glyph[row];
+        for col in 0..GLYPH_W {
+            if bits & (0x80 >> col) != 0 {
+                put_pixel(x + col, y + row, r, g, b);
+            }
+        }
+    }
+}
+
+/// Draw a string at (x, y).
+pub fn draw_text(x: usize, y: usize, s: &str, r: u8, g: u8, b: u8) {
+    for (i, c) in s.bytes().enumerate() {
+        draw_char(x + i * GLYPH_W, y, c, r, g, b);
     }
 }
 
