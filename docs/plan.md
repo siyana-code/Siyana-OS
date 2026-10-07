@@ -93,6 +93,20 @@ drivers, a userspace, and a defined system-call interface — engineered, not a 
 | Documentation of every subsystem (see docs/Research/notes.md style) | |
 | Release process: tagged versions, `main` = release, `develop` = integration | |
 
+## Development workflow (agreed process)
+
+For every feature or phase:
+
+1. **Build** — implement it, `make`, fix warnings/errors.
+2. **Automated smoke test** — boot in QEMU (`-display none -d int`), confirm no
+   triple fault; capture a screenshot and check pixels/text.
+3. **Research note** — add/refresh notes under `docs/Research/` (every new
+   keyword, concept, or mechanism gets its own file, written simply).
+4. **Ask you to verify** — you run `make run` and confirm it works.
+5. **Only then commit + push** to `develop`, with a descriptive message.
+
+`main` is for production releases; merge from `develop` via PR.
+
 ## Branching model
 - `main` — production releases; merge only via PR from `develop`
 - `develop` — integration branch; **default**
