@@ -18,13 +18,13 @@ load_kernel:
     mov bx, 0x0000
 
     mov ah, 0x02
-    mov al, 15
+    mov al, 16
     mov ch, 0
     mov cl, 26
     mov dh, 0
     int 0x13
     jc disk_error2
-    
+
     jmp switch_to_pm
 
 disk_error2:

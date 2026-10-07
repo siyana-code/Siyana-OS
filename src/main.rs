@@ -24,13 +24,10 @@ extern "C" fn _start() -> ! {
     }
 
     interrupts::init_idt();
+    interrupts::init_pics();
 
     unsafe {
-        core::arch::asm!(
-            "mov eax, 10",
-            "mov ecx, 0",
-            "div ecx",
-        );
+        core::arch::asm!("sti");
     }
 
     loop{}

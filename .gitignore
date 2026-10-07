@@ -1,2 +1,4 @@
 /target
 boot/*.bin
+boot/disk.img
+boot/.kernel_sectors

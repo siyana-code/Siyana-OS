@@ -14,19 +14,30 @@ $(BOOT_BIN): boot/boot.asm
 $(STAGE2_BIN): boot/stage2.asm
 	nasm -f bin boot/stage2.asm -o $(STAGE2_BIN)
 
-$(KERNEL_ELF): src/main.rs linker.ld
+$(KERNEL_ELF): src/main.rs src/interrupts.rs linker.ld
 	cargo build --release
 
 $(KERNEL_BIN): $(KERNEL_ELF)
 	objcopy -O binary $(KERNEL_ELF) $(KERNEL_BIN)
-	truncate -s 7680 $(KERNEL_BIN)
+	@SIZE=$$(stat -c%s $(KERNEL_BIN)); \
+	SECTORS=$$(( (SIZE + 511) / 512 )); \
+	PADDED=$$(( SECTORS * 512 )); \
+	truncate -s $$PADDED $(KERNEL_BIN); \
+	echo "Kernel: $$SIZE bytes -> padded to $$PADDED bytes ($$SECTORS sectors)"; \
+	echo $$SECTORS > boot/.kernel_sectors
 
 $(DISK_IMG): $(BOOT_BIN) $(STAGE2_BIN) $(KERNEL_BIN)
+	@SECTORS=$$(cat boot/.kernel_sectors); \
+	CURRENT=$$(grep -oP '(?<=mov al, )\d+' boot/stage2.asm | tail -1); \
+	if [ "$$SECTORS" != "$$CURRENT" ]; then \
+		echo "WARNING: stage2.asm reads $$CURRENT sectors but kernel needs $$SECTORS. Update boot/boot.asm's 'mov al, N' under load_kernel."; \
+		exit 1; \
+	fi
 	cat $(BOOT_BIN) $(STAGE2_BIN) $(KERNEL_BIN) > $(DISK_IMG)
 
 run: $(DISK_IMG)
 	qemu-system-x86_64 -drive format=raw,file=$(DISK_IMG) -no-reboot
 
 clean:
-	rm -f $(BOOT_BIN) $(STAGE2_BIN) $(KERNEL_BIN) $(DISK_IMG)
+	rm -f $(BOOT_BIN) $(STAGE2_BIN) $(KERNEL_BIN) $(DISK_IMG) boot/.kernel_sectors
 	cargo clean
