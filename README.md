@@ -24,6 +24,9 @@ Siyana OS currently boots on real x86_64 hardware (tested in QEMU) through the f
 make run
 ```
 
+Kernel logs (boot steps, memory map, panics, page faults) print to the
+terminal you ran `make run` from, via the COM1 serial port.
+
 This assembles the bootloader stages, builds the kernel in release mode (required — debug builds include runtime safety checks incompatible with a freestanding environment), links it at a fixed address, assembles a raw disk image, and boots it in QEMU.
 
 ```bash
@@ -41,6 +44,11 @@ boot/
 src/
   main.rs       - Kernel entry point
   interrupts.rs - IDT, PIC setup, exception/IRQ handlers
+  memory.rs     - E820 memory map, frame allocator
+  allocator.rs  - kernel heap (Box, Vec, String)
+  serial.rs     - COM1 serial logging (serial_println!)
+  fb.rs, font.rs - framebuffer + bitmap text
+  keyboard.rs   - scancode decoding
 linker.ld       - Kernel linker script (fixed load address 0x10000)
 Makefile        - Build automation
 docs/
@@ -58,5 +66,8 @@ See [docs/plan.md](docs/plan.md) for the full production roadmap, and
 - [x] Keyboard IRQ handler (scancode draining; key decoding pending)
 - [ ] Proper VGA text driver (scrolling, screen clearing)
 - [x] Memory discovery (E820) + bump frame allocator
+- [x] LBA kernel loader (kernel up to 448 KiB)
+- [x] Kernel heap (Box, Vec, String)
+- [x] Serial logging + panic messages
 - [ ] Heap allocator, virtual memory manager
 - [ ] Basic task/process model

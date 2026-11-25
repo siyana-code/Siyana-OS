@@ -28,9 +28,10 @@ drivers, a userspace, and a defined system-call interface — engineered, not a 
 | Item | Notes |
 |------|-------|
 | Physical frame allocator (E820 + bump) | ✅ |
-| Heap allocator | linked_list_allocator or bump → growing heap |
+| LBA kernel loader (INT 13h AH=42h, up to 448 KiB) | ✅ |
+| Heap allocator (4 MiB, linked_list_allocator) | ✅ |
 | Virtual memory management | map/unmap API over page-table levels |
-| Page fault handler | Must diagnose R/W, present, user/supervisor bits |
+| Page fault handler (CR2 + error code decoded) | ✅ |
 
 ## Phase 3 — Concurrency
 
@@ -57,7 +58,7 @@ drivers, a userspace, and a defined system-call interface — engineered, not a 
 | AHCI/SATA or ATA PIO disk driver | read/write sectors |
 | Simple filesystem | first a flat/tar-like, then FAT16 or custom |
 | PS/2 keyboard driver | proper driver, not raw IRQ handler |
-| Serial/UART logging | for debugging and production diagnostics |
+| Serial/UART logging (COM1, serial_println!) | ✅ |
 
 ## Phase 6 — Userspace
 
@@ -86,12 +87,37 @@ drivers, a userspace, and a defined system-call interface — engineered, not a 
 
 | Item | Notes |
 |------|-------|
-| Kernel panic messages with register dump | |
+| Kernel panic messages with register dump | 🔧 message + location on serial; register dump pending |
 | Watchdog / triple-fault recovery path | |
 | Testing: QEMU boot tests in CI | GitHub Actions build + QEMU smoke test |
 | Fuzz/property tests for parsers & allocators | |
 | Documentation of every subsystem (see docs/Research/notes.md style) | |
 | Release process: tagged versions, `main` = release, `develop` = integration | |
+
+## Platform work from the apps list (kernel side, Claude)
+
+Userspace apps are owned by Kaushalya: see [apps.md](apps.md).
+ABI decision: **Option A**, native Siyana system calls (Redox-style).
+
+| Item | Unlocks (apps.md key) | Notes |
+|------|------|-------|
+| Siyana syscall ABI spec | all | Written early in Phase 4 so apps can target it |
+| `libsiyana` crate (Linux + Siyana backends) | now | Lets apps build on Ubuntu today, recompile for Siyana later |
+| Process model: spawn, exit, wait, signals | proc | Phase 4 |
+| Device manager | hardware | PCI enumeration, driver binding (study Redox `pcid`) |
+| Filesystem service: VFS + FAT32, then ext2 | fs | `fatfs`, `ext2-rs`, RedoxFS |
+| Network stack: NIC driver + TCP/IP, DHCP, DNS | net | `smoltcp` |
+| Siyana libc + Rust `std` target | libc | Study `relibc`; unblocks every port (rustc, gcc, git, Lua) |
+| Kernel log interface | logging daemon | Read the kernel log from userspace |
+| Users, groups, permissions | user management | Needed by login/passwd/sudo |
+| Display server / compositor + protocol | gui | Study Redox `orbital`, `smithay` |
+| Input: PS/2 mouse, keyboard events to userspace | gui | |
+| Sound driver (AC97 / Intel HDA) | audio | |
+| Kernel GDB stub | debugger | Debug Siyana from Ubuntu over serial |
+| Debug syscalls (ptrace-like) | debugger | For the userspace debugger (2.5) |
+| Isolation primitives (namespaces/sandbox) | 5.1 containers | |
+| Tracing/profiling interface | 5.2 tracer | eBPF-style observability |
+| Linux compatibility layer | thousands of Linux tools | Optional, late: Linux syscalls on top of the native ABI |
 
 ## Development workflow (agreed process)
 
