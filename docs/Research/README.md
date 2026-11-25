@@ -54,6 +54,11 @@ Each word links to its own file.
 - [Bump allocator](concepts/bump-allocator.md) — simplest frame allocator
 - [Physical frame](concepts/physical-frame.md) — 4 KiB RAM chunk
 - [Page size](concepts/page-size.md) — the 4 KiB unit paging uses
+- [Heap](concepts/heap.md) — memory handed out in any size
+- [Global allocator](concepts/global-allocator.md) — the allocator Box/Vec use
+- [Linked-list allocator](concepts/linked-list-allocator.md) — free list with first fit
+- [alloc crate](concepts/alloc-crate.md) — Box, Vec, String without an OS
+- [Interrupt-safe locking](concepts/interrupt-safe-lock.md) — why the heap lock disables interrupts
 
 ## Interrupts
 - [Interrupt](concepts/interrupt.md) — "stop everything, run this now!"

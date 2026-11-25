@@ -7,6 +7,7 @@ edition = "2024"
 x86_64 = "0.15"
 spin = "0.9"
 pic8259 = "0.10"
+linked_list_allocator = "0.10"
 
 [profile.dev]
 panic = "abort"
