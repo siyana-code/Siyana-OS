@@ -77,10 +77,17 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStac
     }
 }
 
-extern "x86-interrupt" fn page_fault_handler(_stack_frame: InterruptStackFrame, error_code: x86_64::structures::idt::PageFaultErrorCode) {
+extern "x86-interrupt" fn page_fault_handler(stack_frame: InterruptStackFrame, error_code: x86_64::structures::idt::PageFaultErrorCode) {
     use x86_64::registers::control::Cr2;
 
     let addr = Cr2::read().map(|a| a.as_u64()).unwrap_or(0);
+    crate::serial::_print_emergency(format_args!(
+        "\n*** PAGE FAULT accessing {:#x}\n    error code: {:?}\n    RIP {:#x}  RSP {:#x}\n",
+        addr,
+        error_code,
+        stack_frame.instruction_pointer.as_u64(),
+        stack_frame.stack_pointer.as_u64(),
+    ));
 
     let mut buf = [b' '; 48];
     let p = b"PAGE FAULT @ 0x";

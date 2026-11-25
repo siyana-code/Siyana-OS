@@ -92,6 +92,24 @@ pub fn probe_and_print() {
     }
 }
 
+/// Log every E820 region to serial (the screen only shows the total).
+pub fn log_map() {
+    let count = unsafe { core::ptr::read_volatile(E820_COUNT_ADDR) } as usize;
+    serial_println!("[ ok ] E820 memory map, {} entries:", count);
+    for i in 0..count {
+        let (base, len, ty) = (entry_base(i), entry_len(i), entry_type(i));
+        let kind = match ty {
+            1 => "usable",
+            2 => "reserved",
+            3 => "ACPI reclaimable",
+            4 => "ACPI NVS",
+            5 => "bad RAM",
+            _ => "unknown",
+        };
+        serial_println!("       {:#012x}-{:#012x} {:>8} KiB  {}", base, base + len, len / 1024, kind);
+    }
+}
+
 /// Allocate `n` contiguous 4 KiB pages. Returns the start address.
 pub fn alloc_pages(n: u64) -> Option<u64> {
     let size = n * PAGE_SIZE;

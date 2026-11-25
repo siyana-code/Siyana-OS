@@ -81,6 +81,15 @@ Each word links to its own file.
 - [Port I/O (0x60)](concepts/port-io.md) — talking to hardware via ports
 - [Make / break codes](concepts/make-break.md) — press vs release
 
+## Debugging & Logging
+- [Serial port](concepts/serial-port.md) — the kernel's log wire
+- [UART 16550](concepts/uart-16550.md) — the chip behind it
+- [COM1 (0x3F8)](concepts/com1.md) — first serial port, shown by make run
+- [Baud divisor / DLAB](concepts/baud-divisor.md) — picking the speed
+- [Loopback test](concepts/loopback-test.md) — is a UART really there?
+- [Emergency printing](concepts/force-unlock.md) — logging from a crash
+- [addr2line](concepts/addr2line.md) — crash address to function name
+
 ## Display
 - [VGA](concepts/vga.md) — legacy display hardware
 - [VGA text buffer (0xB8000)](concepts/vga-text.md) — writing letters to screen

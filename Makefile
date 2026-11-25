@@ -31,7 +31,7 @@ $(DISK_IMG): $(BOOT_BIN) $(STAGE2_BIN) $(KERNEL_BIN)
 	cat $(BOOT_BIN) $(STAGE2_BIN) $(KERNEL_BIN) > $(DISK_IMG)
 
 run: $(DISK_IMG)
-	qemu-system-x86_64 -drive format=raw,file=$(DISK_IMG) -no-reboot
+	qemu-system-x86_64 -drive format=raw,file=$(DISK_IMG) -no-reboot -serial stdio
 
 clean:
 	rm -f $(BOOT_BIN) $(STAGE2_BIN) $(KERNEL_BIN) $(DISK_IMG) boot/.kernel_sectors

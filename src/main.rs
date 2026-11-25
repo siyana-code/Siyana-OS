@@ -4,6 +4,8 @@
 
 extern crate alloc;
 
+#[macro_use]
+mod serial;
 mod allocator;
 mod interrupts;
 mod fb;
@@ -28,6 +30,9 @@ extern "C" fn _start() -> ! {
         core::ptr::write_bytes(start, 0, end as usize - start as usize);
     }
 
+    let serial_ok = serial::init();
+    serial_println!("Siyana OS v0.1 booting (serial log on COM1)");
+
     let vga = 0xB8140 as *mut u8;
     let message = b"Siyana kernel is alive!";
 
@@ -43,7 +48,9 @@ extern "C" fn _start() -> ! {
     }
 
     interrupts::init_idt();
+    serial_println!("[ ok ] IDT loaded");
     interrupts::init_pics();
+    serial_println!("[ ok ] PICs remapped to vectors 32-47");
 
     unsafe {
         core::arch::asm!("sti");
@@ -52,8 +59,14 @@ extern "C" fn _start() -> ! {
     fb::draw_test_pattern();
     fb::draw_text(10, 10, "Siyana OS v0.1 - framebuffer online", 255, 255, 255);
     fb::draw_text(10, 26, "Type nothing yet. Keyboard IRQ works.", 255, 255, 0);
+    serial_println!("[ ok ] framebuffer {}x{} @ {:#x}, pitch {}", fb::width(), fb::height(), fb::address(), fb::pitch());
+    if !serial_ok {
+        fb::draw_text(10, 42, "serial: no UART on COM1, logging disabled", 255, 128, 0);
+    }
     memory::probe_and_print();
+    memory::log_map();
     heap_self_test();
+    serial_println!("[ ok ] boot complete, idling");
 
     loop{}
 }
@@ -64,9 +77,11 @@ fn heap_self_test() {
 
     let Some(start) = allocator::init() else {
         fb::draw_text(10, 180, "heap: out of memory", 255, 0, 0);
+        serial_println!("[FAIL] heap: out of memory");
         return;
     };
     fb::draw_text(10, 180, &format!("heap: {} KiB @ {:#x}", allocator::HEAP_SIZE / 1024, start), 0, 255, 0);
+    serial_println!("[ ok ] heap {} KiB @ {:#x}", allocator::HEAP_SIZE / 1024, start);
 
     let b = Box::new(41u64);
     let v: Vec<u64> = (1..=1000).collect();
@@ -82,9 +97,15 @@ fn heap_self_test() {
     drop((b, v, s));
     let (used, free) = allocator::stats();
     fb::draw_text(10, 212, &format!("10 MiB churned, now used={} B free={} KiB", used, free / 1024), 0, 255, 0);
+    serial_println!("[ ok ] heap self-test: alloc/free churn ok, used={} B free={} KiB", used, free / 1024);
 }
 
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
-    loop{}
+fn panic(info: &PanicInfo) -> ! {
+    x86_64::instructions::interrupts::disable();
+    serial::_print_emergency(format_args!("\n*** KERNEL PANIC: {}\n", info));
+    fb::draw_text(10, 300, "KERNEL PANIC - details on serial (COM1)", 255, 0, 0);
+    loop {
+        x86_64::instructions::hlt();
+    }
 }
