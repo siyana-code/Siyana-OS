@@ -90,6 +90,18 @@ Each word links to its own file.
 - [Emergency printing](concepts/force-unlock.md) — logging from a crash
 - [addr2line](concepts/addr2line.md) — crash address to function name
 
+## Userspace API (ABI v0)
+- [System call](concepts/system-call.md) — how programs ask the kernel
+- [ABI](concepts/abi.md) — the binary contract (docs/abi.md)
+- [libsiyana](concepts/libsiyana.md) — the app library, Linux + Siyana backends
+- [Handle](concepts/handle.md) — numbered kernel objects
+- [Event queue](concepts/event-queue.md) — Siyana's replacement for signals
+- [Process group](concepts/process-group.md) — stop a service and its children
+- [Reaper](concepts/reaper.md) — who adopts orphans
+- [Zombie process](concepts/zombie-process.md) — exited but not collected
+- [PIE](concepts/pie.md) — executables that load anywhere
+- [IPC](concepts/ipc.md) — named streams between processes
+
 ## Display
 - [VGA](concepts/vga.md) — legacy display hardware
 - [VGA text buffer (0xB8000)](concepts/vga-text.md) — writing letters to screen

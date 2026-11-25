@@ -101,8 +101,8 @@ ABI decision: **Option A**, native Siyana system calls (Redox-style).
 
 | Item | Unlocks (apps.md key) | Notes |
 |------|------|-------|
-| Siyana syscall ABI spec | all | Written early in Phase 4 so apps can target it |
-| `libsiyana` crate (Linux + Siyana backends) | now | Lets apps build on Ubuntu today, recompile for Siyana later |
+| Siyana syscall ABI spec | all | ✅ v0 draft: [abi.md](abi.md), crate `abi/` |
+| `libsiyana` crate (Linux + Siyana backends) | now | ✅ v0: io, fs, time, env, process, event, ipc. Linux backend tested; Siyana backend compiles |
 | Process model: spawn, exit, wait, signals | proc | Phase 4 |
 | Device manager | hardware | PCI enumeration, driver binding (study Redox `pcid`) |
 | Filesystem service: VFS + FAT32, then ext2 | fs | `fatfs`, `ext2-rs`, RedoxFS |

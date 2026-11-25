@@ -6,8 +6,9 @@ Owner: **Kaushalya**. Kernel-side work is tracked in [plan.md](plan.md).
 
 Siyana has its own system-call interface, like Redox OS, not Linux's. Consequences:
 
-- Apps talk to the OS through **`libsiyana`** (Rust crate, kernel side provides
-  it) and later through Siyana's own libc and a Rust `std` target.
+- Apps talk to the OS through **[`libsiyana`](../libsiyana/README.md)** (Rust
+  crate, kernel side provides it; **available now**) and later through
+  Siyana's own libc and a Rust `std` target. System calls: [abi.md](abi.md).
 - Until those exist, write apps against `libsiyana`'s API with its **Linux
   backend**, so they build and run on Ubuntu today. When the Siyana backend
   lands, the same app recompiles for Siyana.
