@@ -19,6 +19,7 @@ pub static PICS: Mutex<ChainedPics> = Mutex::new(unsafe {
 static IDT: Lazy<InterruptDescriptorTable> = Lazy::new(|| {
     let mut idt = InterruptDescriptorTable::new();
     idt.divide_error.set_handler_fn(divide_by_zero_handler);
+    idt.page_fault.set_handler_fn(page_fault_handler);
     idt[KEYBOARD_INTERRUPT_ID].set_handler_fn(keyboard_interrupt_handler);
     idt[TIMER_INTERRUPT_ID].set_handler_fn(timer_interrupt_handler);
     idt
@@ -74,6 +75,58 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStac
     unsafe {
         PICS.lock().notify_end_of_interrupt(KEYBOARD_INTERRUPT_ID);
     }
+}
+
+extern "x86-interrupt" fn page_fault_handler(_stack_frame: InterruptStackFrame, error_code: x86_64::structures::idt::PageFaultErrorCode) {
+    use x86_64::registers::control::Cr2;
+
+    let addr = Cr2::read().map(|a| a.as_u64()).unwrap_or(0);
+
+    let mut buf = [b' '; 48];
+    let p = b"PAGE FAULT @ 0x";
+    buf[..p.len()].copy_from_slice(p);
+    const HEX: &[u8; 16] = b"0123456789ABCDEF";
+    for i in (0..16).rev() {
+        buf[p.len() + (15 - i)] = HEX[((addr >> (i * 4)) & 0xF) as usize];
+    }
+    if let Ok(s) = core::str::from_utf8(&buf[..p.len() + 16]) {
+        crate::fb::draw_text(10, 140, s, 255, 0, 0);
+    }
+
+    let mut e = [b' '; 48];
+    let mut n = 0;
+    if !error_code.contains(x86_64::structures::idt::PageFaultErrorCode::PROTECTION_VIOLATION) {
+        let t = b"cause: page not present; ";
+        e[..t.len()].copy_from_slice(t);
+        n += t.len();
+    } else {
+        let t = b"cause: protection violation; ";
+        e[..t.len()].copy_from_slice(t);
+        n += t.len();
+    }
+    if error_code.contains(x86_64::structures::idt::PageFaultErrorCode::CAUSED_BY_WRITE) {
+        let t = b"write; ";
+        e[n..n + t.len()].copy_from_slice(t);
+        n += t.len();
+    } else {
+        let t = b"read; ";
+        e[n..n + t.len()].copy_from_slice(t);
+        n += t.len();
+    }
+    if error_code.contains(x86_64::structures::idt::PageFaultErrorCode::USER_MODE) {
+        let t = b"user mode";
+        e[n..n + t.len()].copy_from_slice(t);
+        n += t.len();
+    } else {
+        let t = b"kernel mode";
+        e[n..n + t.len()].copy_from_slice(t);
+        n += t.len();
+    }
+    if let Ok(s) = core::str::from_utf8(&e[..n]) {
+        crate::fb::draw_text(10, 156, s, 255, 128, 128);
+    }
+
+    loop {}
 }
 
 extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFrame) {

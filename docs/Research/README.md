@@ -28,6 +28,13 @@ Each word links to its own file.
 - [Linker script](concepts/linker-script.md) — tells the linker where to put code
 - [ELF](concepts/elf.md) — the kernel's file format before objcopy
 
+## Memory & Paging
+- [Page fault](concepts/page-fault.md) — exception #14
+- [CR2 register](concepts/cr2.md) — faulting address
+- [Page-fault error code](concepts/page-fault-error-code.md) — what went wrong
+- [Not-present page](concepts/not-present.md) — missing mapping
+- [Protection violation](concepts/protection-violation.md) — illegal access
+
 ## Interrupts & Timing
 - [PIT (8253/8254)](concepts/pit.md) — the clock chip
 - [PIT Channel 0](concepts/pit-channel0.md) — drives IRQ0

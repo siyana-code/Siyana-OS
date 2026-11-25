@@ -18,7 +18,7 @@ load_kernel:
     mov bx, 0x0000
 
     mov ah, 0x02
-    mov al, 41
+    mov al, 44
     mov ch, 0
     mov cl, 26
     mov dh, 0

@@ -37,6 +37,14 @@ pub fn handle_scancode(code: u8) {
     }
     let Some(c) = scancode_to_ascii(code) else { return };
 
+    // Debug shortcut: 'p' deliberately touches an unmapped page so we
+    // can watch the page-fault handler report it.
+    if c == 'p' {
+        let p = 0x1_0000_0000u64 as *const u8;
+        let _ = unsafe { core::ptr::read_volatile(p) };
+        return;
+    }
+
     let mut col = ECHO_COL.load(Ordering::SeqCst);
     let mut buf = [0u8; 4];
     let s = c.encode_utf8(&mut buf);
