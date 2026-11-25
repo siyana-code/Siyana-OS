@@ -1,0 +1,7 @@
+[package]
+name = "siyana-abi"
+version = "0.1.0"
+edition = "2024"
+description = "Siyana OS system-call numbers, error codes and flags (shared by kernel and libsiyana)"
+
+[dependencies]

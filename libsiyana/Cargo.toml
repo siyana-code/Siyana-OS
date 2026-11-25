@@ -1,0 +1,15 @@
+[package]
+name = "libsiyana"
+version = "0.1.0"
+edition = "2024"
+description = "The Siyana OS userspace API. Linux backend runs today; Siyana backend uses native syscalls."
+repository = "https://github.com/siyana-code/Siyana-OS"
+
+[dependencies]
+siyana-abi = { path = "../abi" }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+libc = "0.2"
+
+[target.'cfg(target_os = "none")'.dependencies]
+linked_list_allocator = "0.10"
