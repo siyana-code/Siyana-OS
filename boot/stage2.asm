@@ -1,7 +1,23 @@
 [org 0x8000]
 [bits 16]
 
+; Disk layout (LBA = sector number counting from 0):
+;   LBA 0       stage 1 boot sector
+;   LBA 1..24   stage 2 (this file, padded to exactly 24 sectors)
+;   LBA 25..    kernel, KERNEL_SECTORS long (passed in by the Makefile)
+%ifndef KERNEL_SECTORS
+    %error "KERNEL_SECTORS not defined; build stage2 through the Makefile"
+%endif
+STAGE2_SECTORS equ 24
+KERNEL_LBA     equ 1 + STAGE2_SECTORS
+KERNEL_SEG     equ 0x1000           ; kernel loads at physical 0x10000
+CHUNK_SECTORS  equ 64               ; 32 KiB per BIOS call, never crosses 64 KiB
+
 start_stage2:
+    xor ax, ax
+    mov ds, ax
+    mov es, ax
+    mov [boot_drive], dl    ; BIOS hands us the boot drive in DL
     mov si, msg2
 
 print2:
@@ -13,17 +29,44 @@ print2:
     jmp print2
 
 load_kernel:
-    mov ax, 0x1000
-    mov es, ax
-    mov bx, 0x0000
-
-    mov ah, 0x02
-    mov al, 44
-    mov ch, 0
-    mov cl, 26
-    mov dh, 0
+    ; Check the BIOS supports LBA extended reads (INT 13h AH=41h).
+    mov ah, 0x41
+    mov bx, 0x55AA
+    mov dl, [boot_drive]
     int 0x13
     jc disk_error2
+    cmp bx, 0xAA55
+    jne disk_error2
+
+    ; Read the kernel in CHUNK_SECTORS pieces with INT 13h AH=42h.
+    mov dword [dap_lba], KERNEL_LBA
+    mov word [dap_seg], KERNEL_SEG
+    mov cx, KERNEL_SECTORS
+read_chunk:
+    mov ax, cx
+    cmp ax, CHUNK_SECTORS
+    jbe chunk_size_ok
+    mov ax, CHUNK_SECTORS
+chunk_size_ok:
+    mov [dap_count], ax
+    mov word [dap_off], 0
+    push ax
+    push cx
+    mov si, dap
+    mov dl, [boot_drive]
+    mov ah, 0x42
+    int 0x13
+    pop cx
+    pop ax
+    jc disk_error2
+
+    sub cx, ax              ; sectors still to read
+    movzx eax, ax
+    add [dap_lba], eax      ; next LBA
+    shl ax, 5               ; sectors * 512 / 16 = segment advance
+    add [dap_seg], ax
+    test cx, cx
+    jnz read_chunk
 
     ; --- Query BIOS E820 memory map for usable regions ---
     xor ax, ax
@@ -149,6 +192,17 @@ msg2: db 0x0D, 0x0A, 'Stage 2 loaded and running!', 0
 err_msg2: db 'Kernel disk read error!', 0
 vbe_msg: db 'VBE framebuffer setup failed!', 0
 
+; Disk Address Packet for INT 13h AH=42h.
+align 4
+dap:
+    db 0x10                 ; packet size
+    db 0
+dap_count: dw 0             ; sectors to read
+dap_off:   dw 0             ; destination offset
+dap_seg:   dw 0             ; destination segment
+dap_lba:   dq 0             ; starting LBA
+boot_drive: db 0
+
 gdt_start:
     dq 0x0000000000000000
 
@@ -263,3 +317,7 @@ pdpt_table:
     dq 0x80000083        ; 2–3 GB identity mapped
     dq 0xC0000083        ; 3–4 GB identity mapped (VBE LFB lives here)
     times 508 dq 0
+
+; Stage 1 loads exactly STAGE2_SECTORS. If stage 2 outgrows that, the
+; count below goes negative and NASM stops the build.
+    times STAGE2_SECTORS * 512 - ($ - $$) db 0

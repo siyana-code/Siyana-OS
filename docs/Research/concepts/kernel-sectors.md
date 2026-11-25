@@ -1,3 +1,3 @@
 # Kernel sectors
 
-The kernel binary's size divided by 512, rounded up (padded). stage2.asm hardcodes how many sectors to read; the Makefile computes it and FAILS the build if they disagree, so the kernel never loads truncated.
+The kernel binary's size divided by 512, rounded up (padded). The Makefile computes it and passes it to NASM as KERNEL_SECTORS when it assembles stage 2, so stage 2 always loads exactly the whole kernel. Nothing to edit by hand.

@@ -11,10 +11,11 @@ all: $(DISK_IMG)
 $(BOOT_BIN): boot/boot.asm
 	nasm -f bin boot/boot.asm -o $(BOOT_BIN)
 
-$(STAGE2_BIN): boot/stage2.asm
-	nasm -f bin boot/stage2.asm -o $(STAGE2_BIN)
+# Stage 2 needs the kernel's size, so it is assembled after the kernel.
+$(STAGE2_BIN): boot/stage2.asm $(KERNEL_BIN)
+	nasm -f bin -DKERNEL_SECTORS=$$(cat boot/.kernel_sectors) boot/stage2.asm -o $(STAGE2_BIN)
 
-$(KERNEL_ELF): src/main.rs src/interrupts.rs src/fb.rs src/font.rs src/keyboard.rs src/memory.rs linker.ld
+$(KERNEL_ELF): $(wildcard src/*.rs) linker.ld Cargo.toml
 	cargo build --release
 
 $(KERNEL_BIN): $(KERNEL_ELF)
@@ -27,12 +28,6 @@ $(KERNEL_BIN): $(KERNEL_ELF)
 	echo $$SECTORS > boot/.kernel_sectors
 
 $(DISK_IMG): $(BOOT_BIN) $(STAGE2_BIN) $(KERNEL_BIN)
-	@SECTORS=$$(cat boot/.kernel_sectors); \
-	CURRENT=$$(grep -oP '(?<=mov al, )\d+' boot/stage2.asm | tail -1); \
-	if [ "$$SECTORS" != "$$CURRENT" ]; then \
-		echo "WARNING: stage2.asm reads $$CURRENT sectors but kernel needs $$SECTORS. Update boot/stage2.asm's 'mov al, N' under load_kernel."; \
-		exit 1; \
-	fi
 	cat $(BOOT_BIN) $(STAGE2_BIN) $(KERNEL_BIN) > $(DISK_IMG)
 
 run: $(DISK_IMG)

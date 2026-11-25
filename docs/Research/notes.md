@@ -233,11 +233,13 @@ The Makefile assembles both boot stages with NASM, builds the kernel in release
 mode, converts the ELF to a raw binary with `objcopy`, pads it to whole 512-byte
 sectors, and concatenates everything into `boot/disk.img`.
 
-### Why the sector-count check?
-Stage 2 loads the kernel from disk by reading N sectors. If the kernel grows
-and N isn't updated, the kernel loads truncated and crashes mysteriously. The
-Makefile now computes the needed N from the binary size and fails the build if
-`stage2.asm` disagrees.
+### How does stage 2 know the kernel's size?
+Stage 2 loads the kernel by reading N sectors. If N were wrong the kernel
+would load truncated and crash mysteriously. So the Makefile builds the kernel
+first, computes N from the binary size, and assembles stage 2 with
+`-DKERNEL_SECTORS=N`. Stage 2 then reads the kernel with BIOS LBA reads
+(INT 13h AH=42h) in 32 KiB chunks. The linker refuses to build a kernel that
+would reach the boot stack at 0x80000.
 
 ### Why release mode?
 Debug builds include stack-protector and overflow checks that need symbols a

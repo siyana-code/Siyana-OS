@@ -13,6 +13,18 @@ use core::panic::PanicInfo;
 #[unsafe(no_mangle)]
 #[unsafe(link_section = ".text.start")]
 extern "C" fn _start() -> ! {
+    // .bss is not stored in kernel.bin, so the loader never writes it.
+    // Zero it before any static is touched.
+    unsafe extern "C" {
+        static mut __bss_start: u8;
+        static mut __bss_end: u8;
+    }
+    unsafe {
+        let start = &raw mut __bss_start;
+        let end = &raw mut __bss_end;
+        core::ptr::write_bytes(start, 0, end as usize - start as usize);
+    }
+
     let vga = 0xB8140 as *mut u8;
     let message = b"Siyana kernel is alive!";
 

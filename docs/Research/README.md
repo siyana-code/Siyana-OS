@@ -10,6 +10,10 @@ Each word links to its own file.
 - [Disk image](concepts/disk-image.md) — the fake hard disk QEMU boots from
 - [Sector](concepts/sector.md) — a 512-byte slice of a disk
 - [Kernel sectors](concepts/kernel-sectors.md) — how big the kernel is, in sectors
+- [LBA](concepts/lba.md) — sectors numbered in one straight line
+- [INT 13h extensions](concepts/int13-extensions.md) — BIOS reads by LBA
+- [Disk Address Packet](concepts/dap.md) — the request we give AH=42h
+- [Kernel size limit](concepts/kernel-size-limit.md) — 448 KiB, enforced by the linker
 - [NASM](concepts/nasm.md) — the assembler that turns .asm into machine code
 - [objcopy](concepts/objcopy.md) — strips ELF into a raw binary
 - [QEMU](concepts/qemu.md) — the virtual machine we run on
@@ -88,6 +92,7 @@ Each word links to its own file.
 - [Freestanding kernel](concepts/freestanding.md) — Rust without an OS under it
 - [no_std / no_main](concepts/no-std.md) — two magic attributes
 - [_start](concepts/_start.md) — the kernel entry point
+- [.bss section](concepts/bss.md) — zeroed statics, cleared by _start
 - [panic_handler](concepts/panic-handler.md) — what happens on kernel panic
 - [spin crate](concepts/spin.md) — locks without an OS
 - [x86_64 crate](concepts/x86-64-crate.md) — safe wrappers over CPU instructions
@@ -97,5 +102,5 @@ Each word links to its own file.
 
 ## Build
 - [Makefile](concepts/makefile.md) — automates build/run/clean
-- [Sectors per kernel check](concepts/kernel-sectors.md) — build fails if
-  stage 2 loads the wrong amount
+- [Kernel sectors](concepts/kernel-sectors.md) — Makefile passes the count
+  to stage 2 automatically
